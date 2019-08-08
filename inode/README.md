@@ -85,4 +85,4 @@ A4: 不会。进程打开文件A之后，以inode来识别文件，而对文件r
 A5: 不会。进程P2删除了文件A之后，文件A的链接数(Links)减为0，但由于此时进程P1仍然在使用文件A，所以操作系统不会回收文件A的inode，一直到进程P1关闭了文件A时，系统才会回收文件A。即当一个文件链接数为0且没有进程使用时，系统才会回收文件对应的inode与blocks。
 
 ### Q6: 如果通过inode来删除一个文件
-A6: find <target path> -inum <inode num>
+A6: find YourTargetPath -inum InodeNum
