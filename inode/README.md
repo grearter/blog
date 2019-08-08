@@ -27,6 +27,7 @@
 * `data区`: 存储文件内容数据
 
 ### 查看磁盘的inode使用情况
+使用`df -i`命令:
 <img src="https://github.com/grearter/blog/blob/master/inode/df.png" />
 * Inodes列: inode区域大小
 * IUsed列: inode区域使用空间
@@ -59,7 +60,7 @@
 * 软链接文件的inode与源文件的inode不同
 软链接文件与源文件为2个独立的文件，软链接文件仅仅是指向源文件的一个快捷方式而已！
 
-## 目录文件的inode
+## 目录的inode
 在linux系统中，目录也是一种文件，保存了一系列目录项的列表，每个列表项目中包括:
 * 文件名
 * 文件名对应的inode号码
