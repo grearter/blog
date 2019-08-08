@@ -38,7 +38,7 @@
 注意: 由于一个磁盘分区的`inode区域大小`在分区创建时已经确定, 若inode区域空间耗尽将无法创建新的文件(即使磁盘分区还有空间)
 
 ## inode链接数
-`链接数(Link Count)`表示指向此inode的文件数量，linux允许多个文件指向同一个inode
+`链接数(Links)`表示指向此inode的文件数量，linux允许多个文件指向同一个inode
 
 ### 什么时候`链接数`会变化
 * 当删除文件(例如使用rm命令)时，inode的链接数`减1`，当链接数`减为0`时，此inode被回收
@@ -48,7 +48,7 @@
 使用ln命令创建一个文件的硬链接:
 <img src="https://github.com/grearter/blog/blob/master/inode/hard_link.png" />
 
-* 创建硬连接之后，a.txt 的链接数(Link Count)变成2
+* 创建硬连接之后，a.txt 的链接数(Links)变成2
 * a.txt 与 b.txt 指向了同一个inode(修改b.txt内容时a.txt内容也会变更)
 * 仅删除a.txt 或 b.xt，此inode仍然存在(不会被系统回收)
 
@@ -82,7 +82,7 @@ A2: 若在同一分区内移动，不会改变文件的inode; 若从一个分区
 A4: 不会。进程打开文件A之后，以inode来识别文件，而对文件rename或move不会对inode造成影响，因此进行P1仍可正常使用文件A
 
 ### Q5: 若进程P1已经打开了文件A，此时进程P2使用rm命令删除了文件A，进程P1是否会报错/抛出异常
-A5: 不会。进程P2删除了文件A之后，文件A的链接数(Link Count)减为0，但由于此时进程P1仍然在使用文件A，所以操作系统不会回收文件A的inode，一直到进程P1关闭了文件A时，系统才会回收文件A。即当一个文件链接数为0且没有进程使用时，系统才会回收文件对应的inode与blocks。
+A5: 不会。进程P2删除了文件A之后，文件A的链接数(Links)减为0，但由于此时进程P1仍然在使用文件A，所以操作系统不会回收文件A的inode，一直到进程P1关闭了文件A时，系统才会回收文件A。即当一个文件链接数为0且没有进程使用时，系统才会回收文件对应的inode与blocks。
 
 ### Q6: 如果通过inode来删除一个文件
 A6: find <target path> -inum <inode num>
