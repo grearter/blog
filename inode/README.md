@@ -49,7 +49,7 @@
 
 * 创建硬连接之后，a.txt 的链接数(Link Count)变成2
 * a.txt 与 b.txt 指向了同一个inode(修改b.txt内容时a.txt内容也会变更)
-* 仅删除a.txt 或 t.xt，此inode仍然存在(不会被系统回收)
+* 仅删除a.txt 或 b.xt，此inode仍然存在(不会被系统回收)
 
 
 ### 软连接(symbolic link)
