@@ -2,14 +2,16 @@
 
 ## 什么是inode
 
-在Linux系统中，每个文件(包括目录)都对应一个inode，inode包含了文件的`元数据(metadata)`:
-* 文件类型： regular file, directory, pipe, socket等
-* 所有者信息：user id，group id
-* 权限信息：read, write, execute
-* 时间戳：inode最后修改时间，文件内容最后修改时间，文件最后访问时间(`精确到纳秒`)
+在Linux系统中，每个文件(包括目录)都对应一个inode，每个inode对应一个号码(int型), inode包含了文件的`元数据(metadata)`:
+* 文件类型:  regular file, directory, pipe, socket等
+* 所有者信息: user id，group id
+* 权限信息: read, write, execute
+* 时间戳: inode最后修改时间，文件内容最后修改时间，文件最后访问时间(`精确到纳秒`)
 * Size: 文件字节数
 * Blocks: 存储文件内容的blocks
 * 链接数: 指向次inode的文件数量
+
+注意: inode信息中不包括`文件名`信息
 
 ## 如何查看文件的inode
 
@@ -18,3 +20,48 @@
 
 ### stat命令
 <img src="https://github.com/grearter/blog/blob/master/inode/stat.png" />
+
+## inode存储在哪
+当我们新建一个磁盘分区时，默认的该磁盘分为2个区域: 
+* `inode区`: 存放inode信息
+* `data区`: 存储文件内容数据
+
+### 查看磁盘的inode使用情况
+<img src="https://github.com/grearter/blog/blob/master/inode/df.png" />
+* Inodes列: inode区域大小
+* IUsed列: inode区域使用空间
+* IFree列: inodes区域剩余的空间
+
+### 查看inode数据结构的大小
+<img src="https://github.com/grearter/blog/blob/master/inode/inode_size.png" />
+注意: 由于一个磁盘分区的`inode区域大小`在分区创建时已经确定, 若inode区域空间耗尽将无法创建新的文件(即使磁盘分区还有空间)
+
+## inode链接数
+`链接数(Link Count)`表示指向此inode的文件数量，linux允许多个文件指向同一个inode
+
+### 什么时候`链接数`会变化
+* 当删除文件(例如使用rm命令)时，inode的链接数`减1`，当链接数`减为0`时，此inode被回收
+* 创建一个文件`硬链接(hard link)`时，inode的链接数`加1`
+
+#### 硬链接(hard link)
+使用ln命令创建一个文件的硬链接:
+<img src="https://github.com/grearter/blog/blob/master/inode/hard_link.png" />
+
+* 创建硬连接之后，a.txt 的链接数(Link Count)变成2
+* a.txt 与 b.txt 指向了同一个inode(修改b.txt内容时a.txt内容也会变更)
+* 仅删除a.txt 或 t.xt，此inode仍然存在(不会被系统回收)
+
+
+### 软连接(symbolic link)
+使用`ln -s <源文件> <链接文件>`来创建一个文件的软连接，软连接会创建新的inode，但文件的内容是源文件的路径(相当于windows的快捷方式)
+<img src="https://github.com/grearter/blog/blob/master/inode/symbol_link.png" />
+* 创建软链接之后，a.txt 的链接数不变
+* 软链接文件的inode与源文件的inode不同
+软链接文件与源文件为2个独立的文件，软链接文件仅仅是指向源文件的一个快捷方式而已！
+
+## 目录文件的inode
+在linux系统中，目录也是一种文件，保存了一系列目录项的列表，每个列表项目中包括:
+* 文件名
+* 文件名对应的inode号码
+
+
