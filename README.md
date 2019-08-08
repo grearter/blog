@@ -1,3 +1,3 @@
 # Blog
 
-## [inode](https://github.com/grearter/blog/blob/master/inode/README.md)
+## [inode](https://github.com/grearter/blog/tree/master/inode)

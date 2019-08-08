@@ -14,7 +14,7 @@
 ## 如何查看文件的inode
 
 ### ls -i命令
-<img src="https://github.com/grearter/blog/inode/ls.png" />
+<img src="https://github.com/grearter/blog/blob/master/inode/ls.png" />
 
 ### stat命令
-<img src="https://github.com/grearter/blog/inode/stat.png" />
+<img src="https://github.com/grearter/blog/blob/master/inode/stat.png" />
