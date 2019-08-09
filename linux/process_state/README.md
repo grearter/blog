@@ -83,7 +83,7 @@ int main() {
 }
 ```
 编译并运行: `gcc interruptible_sleep.c -o interruptible_sleep && ./interruptible_sleep`, 使用ps命令查看进程状态:
-<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interruptible_sleep_state.png" />
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interrunptible_sleep.png" />
 
 ### 例3: 状态S(可中断的等待状态, 等待事件)
 ```c
@@ -99,7 +99,7 @@ int main() {
 }
 ```
 编译并运行: `gcc interruptible_sleep2.c -o interruptible_sleep2 && ./interruptible_sleep2`, 使用ps命令查看进程状态:
-<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interruptible_sleep_state2.png" />
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interrunptible_sleep2.png" />
 
 ### 例4: 状态T(停止状态)
 ```c
