@@ -39,7 +39,7 @@
 * 运行->等待: 当进程需要等待某项资源(如IO操作)时，只有在获得等待的资源后才能继续执行，则进程进入`等待`状态；
 * 等待->就绪: 当等待的资源得到满足后，处于`阻塞`状态的进程转换到`就绪`状态;
 * 运行->退出: 进程执行完成自动退出或收到终止信号(如SIGTERM);
-<img src="https://github.com/grearter/blog/blob/master/linux/process_status/process_state.png" />
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/process_state.png" />
 
 ## 查看进程状态
 使用`ps`命令或`top`命令，可以查看每个进程当前的状态信息。
@@ -48,6 +48,6 @@
 * D: 不可终端的睡眠状态(uninterruptible sleep)
 * T: 停止(stopped)
 * Z: 僵死(zombie)
-<img src="https://github.com/grearter/blog/blob/master/linux/process_status/ps.png" />
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/ps.png" />
 
 ---
