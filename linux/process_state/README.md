@@ -46,8 +46,108 @@
 * R: 运行状态(running) 或 就绪状态(runnable)
 * S: 可中断的睡眠状态(interruptible sleep)
 * D: 不可终端的睡眠状态(uninterruptible sleep)
-* T: 停止(stopped)
+* T: 停止(stopped), 进程为结束但处于停止状态(可以理解为特殊的等待状态)
 * Z: 僵死(zombie)
 <img src="https://github.com/grearter/blog/blob/master/linux/process_state/ps.png" />
 
----
+### 例1: 状态R(就绪或运行状态)
+```c
+#include <stdio.h>
+
+// run_state.c
+
+int main() {
+	printf("process start\n");
+	while (1) {
+		;
+	}
+}
+```
+编译并运行: `gcc run_state.c -o run_state && ./run_state`, 使用ps命令查看进程状态:
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/r_state.png" />
+
+### 例2: 状态S(可中断的等待状态, 等待IO)
+```c
+#include <stdio.h>
+
+// interruptible sleep
+
+int main() {
+	printf("process start\n");
+
+	int a = 0;
+
+	scanf("%d", &a);
+
+	return 0;
+}
+```
+编译并运行: `gcc interruptible_sleep.c -o interruptible_sleep && ./interruptible_sleep`, 使用ps命令查看进程状态:
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interruptible_sleep_state.png" />
+
+### 例3: 状态S(可中断的等待状态, 等待事件)
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+// interruptible_sleep2.c
+
+int main() {
+	printf("process start\n");
+	sleep(60); // sleep 60s
+	return 0;
+}
+```
+编译并运行: `gcc interruptible_sleep2.c -o interruptible_sleep2 && ./interruptible_sleep2`, 使用ps命令查看进程状态:
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/interruptible_sleep_state2.png" />
+
+### 例4: 状态T(停止状态)
+```c
+#include <stdio.h>
+
+// stop_state.c
+
+int main() {
+	printf("process start\n");
+	// some code to ensure process do not exit
+	while (1) {
+		;
+	}
+
+	return 0;
+}
+```
+编译并运行: `gcc stop_state.c -o stop_state && ./stop_state`, 使用ps命令查看进程状态:
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/stop_state.png" />
+
+
+### 例5: 状态Z(僵死状态)
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+// zombie_state.c
+
+int main() {
+	printf("process start\n");
+
+	pid_t ret_pid = fork();
+
+	if (ret_pid < 0) {
+		// fork failed
+		return -1;
+	} else if (ret_pid == 0) {
+		// child process
+		printf("i am child process, pid=%d\n", getpid());
+	} else {
+		// parent process
+		printf("i am parent process, pid=%d\n", getpid());
+		while (1) {
+			;
+		}	
+	}
+}
+```
+编译并运行: `gcc zombie_state.c -o zombie_state && ./zombie_state`, 使用ps命令查看进程状态:
+<img src="https://github.com/grearter/blog/blob/master/linux/process_state/zombie_state.png" />
