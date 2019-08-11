@@ -3,7 +3,7 @@
 ## 进程的内存布局
 
 一个进程的虚拟内存由多个`段(segment)`组成, 如下图所示:
-<img src="https://github.com/grearter/blog/blob/master/golang/gc/memory_layout.png" />
+<img src="https://github.com/grearter/blog/blob/master/golang/gc/memory_layout.png" /><br/>
 
 * 内核空间(Kernel): 内核总是驻留在内存中, 并映射到进程的虚拟内存中, 但不允许进程读写操作
 * 参数列表(argv)与环境变量(environ)
@@ -50,7 +50,7 @@ Root对象指不需要其它对象就能直接访问到的对象。主要包括`
 
 #### 可达性
 即通过Root对象可以`直接`或`间接`访问到。
-<img src="https://github.com/grearter/blog/blob/master/golang/gc/reachable_objs.png" />
+<img src="https://github.com/grearter/blog/blob/master/golang/gc/reachable_objs.png" /><br/>
 一般来说, 如果一个对象是`不可达`的, 那么此对象是需要被GC回收。
 
 #### 标记和清扫(Mark and Sweep)
