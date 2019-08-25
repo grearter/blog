@@ -272,106 +272,106 @@ func main() {
 <img src="https://github.com/grearter/blog/blob/master/golang/object/closeure.png" /><br/>
 `capture list`由编译器追加，动态分配，有类型。<br\>
 #### `capture list`捕获值?还是捕获地址？<br/>
-* 所有作用域不修改, 捕获值
-```go
-// closeure1.go
-package main
+* 所有作用域不修改时, 捕获值
+    ```go
+    // closeure1.go
+    package main
 
-import (
-	"fmt"
-	"unsafe"
-)
+    import (
+        "fmt"
+        "unsafe"
+    )
 
-func f1() func() int {
-	i := 12345
+    func f1() func() int {
+        i := 12345
 
-	return func() int {
-		return i
-	}
-}
+        return func() int {
+            return i
+        }
+    }
 
-type funcvalStruct1 struct {
-	fn uintptr
-	i  int
-}
+    type funcvalStruct1 struct {
+        fn uintptr
+        i  int
+    }
 
-func main() {
-	f := f1()
-	p := (**funcvalStruct1)(unsafe.Pointer(&f))
-	fmt.Printf("%+v\n", *p) // &{fn:17385728 i:12345}
-	return
-}
-```
+    func main() {
+        f := f1()
+        p := (**funcvalStruct1)(unsafe.Pointer(&f))
+        fmt.Printf("%+v\n", *p) // &{fn:17385728 i:12345}
+        return
+    }
+    ```
 
-```go
-// closeure2.go
-package main
+    ```go
+    // closeure2.go
+    package main
 
-import (
-	"fmt"
-	"unsafe"
-)
+    import (
+        "fmt"
+        "unsafe"
+    )
 
-func f2() func() (int, int) {
-	i := 12345
-	j := 67890
+    func f2() func() (int, int) {
+        i := 12345
+        j := 67890
 
-	return func() (int, int) {
-		return i, j
-	}
-}
+        return func() (int, int) {
+            return i, j
+        }
+    }
 
-type funcvalStruct2 struct {
-	fn uintptr
-	i  int
-	j  int
-}
+    type funcvalStruct2 struct {
+        fn uintptr
+        i  int
+        j  int
+    }
 
-func main() {
-	f := f2()
-	p := (**funcvalStruct2)(unsafe.Pointer(&f))
-	fmt.Printf("%+v\n", *p) // &{fn:17385744 i:12345 j:67890}
-	return
-}
-```
-* 任一作用域有修改，捕获地址
-```go
-package main
+    func main() {
+        f := f2()
+        p := (**funcvalStruct2)(unsafe.Pointer(&f))
+        fmt.Printf("%+v\n", *p) // &{fn:17385744 i:12345 j:67890}
+        return
+    }
+    ```
+* 任一作用域有修改时，捕获地址
+    ```go
+    package main
 
-import (
-	"fmt"
-	"unsafe"
-)
+    import (
+        "fmt"
+        "unsafe"
+    )
 
-func f3() func() (int, int) {
-	i := 12345
-	j := 67890
+    func f3() func() (int, int) {
+        i := 12345
+        j := 67890
 
-	return func() (int, int) {
-		fmt.Printf("variable i addr: %p, variable j addr: %p\n", &i, &j)
-		i++ // modify i
-		j++ // modify j
-		return i, j
-	}
-}
+        return func() (int, int) {
+            fmt.Printf("variable i addr: %p, variable j addr: %p\n", &i, &j)
+            i++ // modify i
+            j++ // modify j
+            return i, j
+        }
+    }
 
-type funcvalStruct3 struct {
-	fn uintptr
-	i  uintptr
-	j  uintptr
-}
+    type funcvalStruct3 struct {
+        fn uintptr
+        i  uintptr
+        j  uintptr
+    }
 
-func main() {
-	f := f3()
-	fmt.Printf("f addr: 0x%p\n", f) // f addr: 0x0x1094a90
+    func main() {
+        f := f3()
+        fmt.Printf("f addr: 0x%p\n", f) // f addr: 0x0x1094a90
 
-	f() // variable i addr: 0xc000094000, variable j addr: 0xc000094008
+        f() // variable i addr: 0xc000094000, variable j addr: 0xc000094008
 
-	p := (**funcvalStruct3)(unsafe.Pointer(&f))
-	fmt.Printf("p.fn: 0x%x, p.i: 0x:%x, p.j: 0x%x\n", (*p).fn, (*p).i, (*p).j) // p.fn: 0x1094a90, p.i: 0x:c000094000, p.j: 0xc000094008
-	return
-}
-```
+        p := (**funcvalStruct3)(unsafe.Pointer(&f))
+        fmt.Printf("p.fn: 0x%x, p.i: 0x:%x, p.j: 0x%x\n", (*p).fn, (*p).i, (*p).j) // p.fn: 0x1094a90, p.i: 0x:c000094000, p.j: 0xc000094008
+        return
+    }
+    ```
 
 ## interface
 interface在源码src/runtime/runtime2.go中定义。<br\>
