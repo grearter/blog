@@ -266,3 +266,190 @@ func main() {
 	return
 }
 ```
+
+### 闭包
+闭包使用`funcval`实现, 如下图:
+<img src="https://github.com/grearter/blog/blob/master/golang/object/closeure.png" /><br/>
+`capture list`由编译器追加，动态分配，有类型。<br\>
+#### `capture list`捕获值?还是捕获地址？<br/>
+* 所有作用域不修改, 捕获值
+```go
+// closeure1.go
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+func f1() func() int {
+	i := 12345
+
+	return func() int {
+		return i
+	}
+}
+
+type funcvalStruct1 struct {
+	fn uintptr
+	i  int
+}
+
+func main() {
+	f := f1()
+	p := (**funcvalStruct1)(unsafe.Pointer(&f))
+	fmt.Printf("%+v\n", *p) // &{fn:17385728 i:12345}
+	return
+}
+```
+
+```go
+// closeure2.go
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+func f2() func() (int, int) {
+	i := 12345
+	j := 67890
+
+	return func() (int, int) {
+		return i, j
+	}
+}
+
+type funcvalStruct2 struct {
+	fn uintptr
+	i  int
+	j  int
+}
+
+func main() {
+	f := f2()
+	p := (**funcvalStruct2)(unsafe.Pointer(&f))
+	fmt.Printf("%+v\n", *p) // &{fn:17385744 i:12345 j:67890}
+	return
+}
+```
+* 任一作用域有修改，捕获地址
+```go
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+func f3() func() (int, int) {
+	i := 12345
+	j := 67890
+
+	return func() (int, int) {
+		fmt.Printf("variable i addr: %p, variable j addr: %p\n", &i, &j)
+		i++ // modify i
+		j++ // modify j
+		return i, j
+	}
+}
+
+type funcvalStruct3 struct {
+	fn uintptr
+	i  uintptr
+	j  uintptr
+}
+
+func main() {
+	f := f3()
+	fmt.Printf("f addr: 0x%p\n", f) // f addr: 0x0x1094a90
+
+	f() // variable i addr: 0xc000094000, variable j addr: 0xc000094008
+
+	p := (**funcvalStruct3)(unsafe.Pointer(&f))
+	fmt.Printf("p.fn: 0x%x, p.i: 0x:%x, p.j: 0x%x\n", (*p).fn, (*p).i, (*p).j) // p.fn: 0x1094a90, p.i: 0x:c000094000, p.j: 0xc000094008
+	return
+}
+```
+
+## interface
+interface在源码src/runtime/runtime2.go中定义。<br\>
+interface是由两种类型来实现的：iface和eface。
+* iface表示的是包含方法的interface，如下:
+```go
+type Person interface {
+    Print()
+}
+```
+* eface代表的是不包含方法的interface，如下:
+```go
+type Person interface {}
+```
+
+### eface
+eface结构如下:
+```go
+type eface struct {
+	_type *_type
+	data  unsafe.Pointer
+}
+```
+* _type，可以认为是Go语言中所有类型的公共描述，Go语言中几乎所有的数据结构都可以抽象成_type，是所有类型的表现，可以说是万能类型。
+* data, 指向具体数据的指针。
+<img src="https://github.com/grearter/blog/blob/master/golang/object/eface.png" /><br/>
+```go
+package main
+
+import (
+	"fmt"
+	"unsafe"
+)
+
+type efaceStruct struct {
+	_type uintptr
+	data  unsafe.Pointer
+}
+
+func main() {
+	n := 12345
+	fmt.Printf("variable n addr: %p\n", &n) // variable n addr: 0xc000016060
+
+	var i interface{} = n
+	p := (*efaceStruct)(unsafe.Pointer(&i))
+	data := *((*int)(p.data))
+	fmt.Printf("p._type: 0x%x, p.data: 0x%x\n", p._type, p.data) // p._type: 0x10a4ec0, p.data: 0xc000098000
+	fmt.Printf("data: %d\n", data) // data: 12345
+	return
+}
+```
+变量n的地址与p.data地址不同，因此p.data是变量n的一个副本，修改n的值不会影响i的值。
+
+### iface
+所有包含方法的接口，都会使用iface结构。
+```go
+type iface struct {
+	tab  *itab
+	data unsafe.Pointer
+}
+```
+* tab, 持有itab对象的地址，该对象内嵌了描述interface类型和其指向的数据类型的数据结构。
+* data, 是一个pointer，指向interface持有的具体的值。
+<img src="https://github.com/grearter/blog/blob/master/golang/object/iface1.png" /><br/>
+
+itab是interface的核心，在src/runtime2.go中定义:<br/>
+```go
+type itab struct {
+	inter *interfacetype
+	_type *_type
+	hash  uint32 // copy of _type.hash. Used for type switches.
+	_     [4]byte
+	fun   [1]uintptr // variable sized. fun[0]==0 means _type does not implement inter.
+}
+```
+* _type, 是golang中所有类型的超集, 是runtime对任意Go语言类型的内部表示, _type描述了一个“类型”的每一个方面: 类型名字，特性(大小，对齐方式...)，某种程度上类型的行为(比较，哈希...)也包含在内
+* inter, 一个包装了 _type 和额外的与 interface 相关的信息的字段, inter 字段描述了 interface 本身的类型
+* func, func数组持有组成该interface虚(virtual/dispatch)函数表的的函数的指针
+
+iface的整体结构为:<br/>
+<img src="https://github.com/grearter/blog/blob/master/golang/object/iface2.jpeg" /><br/>
