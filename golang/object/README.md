@@ -51,7 +51,7 @@ slice struct包含3个成员变量:
 * array, 指向数组切片内容的指针
 * len, 切片存放的元素个数
 * cap, 切片的总容量, cap >= len
-我们可以推断出, string变量的size为`8 + 8 + 8 = 24`
+我们可以推断出, slice变量的size为`8 + 8 + 8 = 24`
 ```go
 package main
 
